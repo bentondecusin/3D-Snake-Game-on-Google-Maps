@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>UPenn Track</title>
+	<meta name="viewport" content="initial-scale=1.0">
+	<meta charset="utf-8">
+	<style>
+		#map {
+			height: 100%;
+		}
+
+		html,
+		body {
+			height: 100%;
+			margin: 0;
+			padding: 0;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="map"></div>
+  
+	<script>
+		function initMap() {
+        
+
+        /*initial parameter, creating 4 points*/
+        oriLat = 39.950227;
+        oriLng = -75.190602;
+        oPoint = {lat: oriLat, lng: oriLng};
+        
+        centre = {lat: 39.950049, lng: -75.189925};
+        
+        downRight = {lat:39.949552, lng:-75.189645};
+        upRight = {lat:39.949872, lng:-75.189245};
+        downLeft = {lat:39.950225, lng:-75.190604};
+        upLeft = {lat:39.950545, lng:-75.190204};
+         
+        
+        seat0Lat = 39.95050631;
+        seat0Lng = -75.19020236;
+
+        rightLat = -0.0000373889;
+        rightLng = 0.0000532778;
+
+        downLat = -0.00004;
+        downLng = -0.00005;
+        
+        var map = new google.maps.Map(document.getElementById('map'), {
+          center: centre,
+          zoom: 19,
+          mapTypeId: 'satellite'
+        });
+        
+        var coordinates = [
+          downRight,downLeft,upLeft,upRight
+        ];
+
+        var boundary = new google.maps.Polygon({
+          path: coordinates,
+          geodesic: true,
+          strokeColor: '#FF0000',
+          strokeOpacity: 1.0,
+          strokeWeight: 2
+        });
+        boundary.setMap(map);
+        
+
+        
+
+//      
+
+        var score = 0;
+        var length = 2;
+        var circle = new Array(144);
+
+        var i;
+        for (i = 0; i<144; i++ ){
+          draw(i,"white")
+        }
+
+        var snake = [37, 36],       //initial snake body
+          direction = 1,          //1right，-1left，18down，-18up
+          food = 39,         
+          n
+
+        //draws circles
+        function draw(seat, color) {
+        
+        var dSnakeX = seat % 18 ;
+        var dSnakeY = ~~(seat / 18);
+        var cLat = seat0Lat + dSnakeX * rightLat + dSnakeY *downLat;
+        var cLng = seat0Lng + dSnakeX * rightLng + dSnakeY * downLng
+        var circlePostition = {lat:cLat,lng:cLng};
+        
+        circle[seat] = new google.maps.Circle({
+        strokeColor: color,
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: color,
+        fillOpacity: 0.15,
+        map: map,
+        visible: false,
+        center: (circlePostition),
+        radius: 3.056
+        });
+          }
+        
+        function setCircle(seat, color) {
+        var dSnakeX = seat % 18 ;
+        var dSnakeY = ~~(seat / 18);
+        var cLat = seat0Lat + dSnakeX * rightLat + dSnakeY *downLat;
+        var cLng = seat0Lng + dSnakeX * rightLng + dSnakeY * downLng
+        var circlePostition = {lat:cLat,lng:cLng};
+        circle[seat].setVisible(true);
+          }
+
+        function eraseCircle(seat, color) {
+        var dSnakeX = seat % 18 ;
+        var dSnakeY = ~~(seat / 18);
+        var cLat = seat0Lat + dSnakeX * rightLat + dSnakeY *downLat;
+        var cLng = seat0Lng + dSnakeX * rightLng + dSnakeY * downLng
+        var circlePostition = {lat:cLat,lng:cLng};
+        circle[seat].setVisible(false);
+          }  
+
+        document.onkeydown = function(evt) {    
+                                    
+            direction = snake[1] - snake[0] == (n = [-1, -18, 1, 18][(evt || event).keyCode - 37] || direction) ? direction : n;
+            
+        };
+
+        
+        
+
+        !function() {
+            
+            snake.unshift(n = snake[0] + direction);    
+            //n is the snake head in next frame, n joins the body
+            if(snake.indexOf(n, 1) > 0 || n < 0 || n > 143 || direction == 1 && n % 18 == 0 || direction == -1 && n % 18 == 17) {
+            //if statement to check if knocked off
+              return alert("GAME OVER!"+" You scored "+score);
+            }
+            
+            setCircle(n, "#FFFFFF");        //Snake head's next postition
+            if(n == food) { 
+              score = score +1;
+              length = length +1;
+                      //If got eaten, generate somewhere. Not cutting the tail
+            while (snake.indexOf(food = ~~(Math.random() * 144)) >= 0);
+            setCircle(food, '#FF0000');
+            } else {
+              //Nothing eaten, move on
+              
+              eraseCircle(snake.pop(),"323D3C");
+              
+            }
+
+            setTimeout(arguments.callee, 250);
+            // 1 frame per 0.25 sec
+
+            
+            
+            
+        }();
+
+//
+        
+
+      
+
+      }
+      
+
+      
+	</script>
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAUy6XSsh3uNbXnh_Qyh_-kJZHtiVlfQJo&callback=initMap&language=en&Labels=off"
+	 async defer>
+
+	</script>
+</body>
+
+</html>
